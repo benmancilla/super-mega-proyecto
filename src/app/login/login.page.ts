@@ -1,9 +1,9 @@
-// login.page.ts
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-
+import { Keyboard } from '@capacitor/keyboard';  
+import { TextZoom } from '@capacitor/text-zoom';
 
 @Component({
   selector: 'app-login',
@@ -24,13 +24,16 @@ export class LoginPage {
     });
   }
 
+
   async onLogin() {
     const { username, password } = this.loginForm.value;
     const storedPassword = localStorage.getItem('password') || 'contra'; 
 
     localStorage.setItem('username', username);
+    
     if (username === 'ben' && password === storedPassword) {
       this.router.navigate(['/home']);
+      Keyboard.hide();
     } else {
       const alert = await this.alertController.create({
         header: 'Error de validación',
@@ -38,10 +41,36 @@ export class LoginPage {
         buttons: ['OK']
       });
       await alert.present();
+      Keyboard.hide(); 
     }
   }
 
+
   goToPasswordReset() {
     this.router.navigate(['/passreset']);
+  }
+
+  async increaseTextZoom() {
+    try {
+      const result = await TextZoom.get();
+      const newZoom = result.value + 0.1; 
+      await TextZoom.set({ value: newZoom });
+    } catch (error) {
+      console.error('Error aumentando el zoom:', error);
+    }
+  }
+
+ 
+  async resetTextZoom() {
+    try {
+      await TextZoom.set({ value: 1 }); 
+    } catch (error) {
+      console.error('Error restableciendo el zoom:', error);
+    }
+  }
+
+
+  dismissKeyboard() {
+    Keyboard.hide();
   }
 }
